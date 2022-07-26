@@ -1,0 +1,18 @@
+{   
+    "modelPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot Feature Extraction\\Model",
+    "historyPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot Feature Extraction\\History",
+    "modelName": 0,
+
+    "model_config": null,
+    "modelKey": "NVAE",
+    "batch_size": 8,
+
+    "learning_rate": 1e-3,
+    "L2regularizer": 1e-7,
+    "LRschedulerMode": "min",
+    "LRfactor": 0.1,
+    "LRpatience": 10,
+
+    "epochs_num": 1000, 
+    "earlyStopPatience": 20
+}
