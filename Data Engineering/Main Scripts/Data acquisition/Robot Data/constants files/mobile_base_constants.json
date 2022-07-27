@@ -1,0 +1,15 @@
+{
+    "filepaths": {"sequence1": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Mobile base\\Sequence 1",
+                   "sequence2": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Mobile base\\Sequence 2",
+                   "sequence3": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Mobile base\\Sequence 3",
+                   "sequence4": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Mobile base\\Sequence 4",
+                   "sequence5": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Mobile base\\Sequence 5",
+                   "sequence6": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Mobile base\\Sequence 6"},
+
+    "dataset_savepath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Mobile base\\Dataset Numpy",
+    "dataset_stats_savepath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Datasets Stats",
+    "base_name": "ms25",
+
+    "n":10800,
+    "n_total":60
+}

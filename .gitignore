@@ -1,2 +1,9 @@
 *.pth
 *.pickle
+*.npz
+*.csv
+*.npy
+*.png
+*.txt
+*.tar
+*.tar.bz2

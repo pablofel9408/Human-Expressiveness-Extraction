@@ -1,0 +1,14 @@
+{
+    "filepaths": {"3d_fig_8": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Drone\\3D Figure 8",
+                   "bent_dice": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Drone\\Bent Dice",
+                   "figure_8": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Drone\\Figure 8",
+                   "half_moon": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Drone\\Half moon",
+                   "mouse": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Drone\\Mouse",
+                   "sphinx": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Drone\\Sphinx"},
+
+    "dataset_savepath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Drone\\Dataset Numpy",
+    "dataset_stats_savepath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Datasets Stats",
+
+    "n":10800,
+    "n_total":60
+}

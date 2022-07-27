@@ -1,0 +1,12 @@
+{
+    "filepaths": {"circle": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Panda (manipulator)\\Twist\\Circle",
+                   "compose_traj": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Panda (manipulator)\\Twist\\Composite Traj",
+                   "infinity": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Panda (manipulator)\\Twist\\Infinity",
+                   "line_xy": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Panda (manipulator)\\Twist\\Line_XY",
+                   "line_yz": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Panda (manipulator)\\Twist\\Line_YZ",
+                   "zig_zag": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Panda (manipulator)\\Twist\\Zig Zag"},
+
+    "dataset_savepath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Panda (manipulator)\\Dataset Numpy",
+    "dataset_stats_savepath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot\\Datasets Stats",
+    "n_total":60
+}
