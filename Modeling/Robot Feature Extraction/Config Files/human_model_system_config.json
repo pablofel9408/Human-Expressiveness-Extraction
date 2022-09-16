@@ -1,0 +1,51 @@
+{   
+    "modelPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot Feature Extraction\\Model",
+    "historyPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot Feature Extraction\\History",
+    "pretrained_model_path":"C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot Feature Extraction\\Model\\Human NVAE\\model_NVAE_-1.7939595635732015_0.pth",
+    "modelName": 0,
+
+    "pretrained_model":true,
+
+    "optimizer": "adam",
+    "anneiling": false,
+
+    "model_config": {"encoder":{"input_dim":6,
+                                "conv_blocks_num":2,
+                                "conv_hidden":[12,24],
+                                "conv_kernel":[7,5],
+                                "batchnorm": true,
+                                "lstm_hidden_dim": 48,
+                                "num_lstm_layers":3,
+                                "lstm_dir":false,
+                                "z_dim": 80},
+
+                    "decoder":{"input_dim":80,
+                                "output_dim":6,
+                                "conv_blocks_num":2,
+                                "conv_hidden":[24,12],
+                                "conv_kernel":[5,7],
+                                "batchnorm": true,
+                                "lstm_hidden_dim": 48,
+                                "num_lstm_layers":3,
+                                "lstm_dir":false,
+                                "padding":0,
+                                "dilation":1,
+                                "stride":1},
+
+                    "latent_reg":{"input_dim":80,
+                            "output_dim":5,
+                            "hidden_dims":[100,100,20]}
+                    },
+
+    "modelKey": "NVAE",
+    "batch_size": 2,
+
+    "learning_rate": 1e-3,
+    "L2regularizer": 1e-5,
+    "LRschedulerMode": "min",
+    "LRfactor": 0.5,
+    "LRpatience": 15,
+
+    "epochs_num": 10000, 
+    "earlyStopPatience": 300
+}

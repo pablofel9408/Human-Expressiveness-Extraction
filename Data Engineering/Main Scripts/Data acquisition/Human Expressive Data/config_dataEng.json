@@ -1,0 +1,29 @@
+{
+    "dataset_path": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Human\\Emotions Dataset\\Emotions Dataset\\Emotions_Walk_College_de_France\\MorionCaptureData trc\\",
+    "rotation_path": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Human\\Emotions Dataset\\Emotions Dataset\\Emotions_Walk_College_de_France\\anm_scaled\\",
+    "trc_data_keys": ["DataFormat", "FileName", "DataRate", "CameraRate", "NumFrames", 
+                    "NumMarkers", "Units", "OrigDataRate", "OrigDataStartFrame", "OrigNumFrames", "Frame#", "Time","Markers"],
+    "markers_oi": ["LWRB","LWRA","RWRB","RWRA"],
+    "new_markers": ["LW", "RW"],
+    "rotation_markers": ["RightHand","LeftHand"],
+    "markers_ref": ["RFWT","LFWT"],
+    "candidate": ["EMLA","NABA","PAIB","SALE"],
+    "output_signals": ["pos","vel","acc","jerk", "ang_vel","exp_weight", "exp_laban_time", 
+                        "exp_flow", "exp_bounding_vol_box","exp_space"],
+    "time_inter": 10.0,
+    "spline_degree": 3,
+
+    "set_data_aug": true,
+    "get_stats": true, 
+
+    "train_ratio": 0.70,
+    "validation_ratio": 0.2,
+    "test_ratio": 0.10,
+
+    "plot_dataset": false,
+    "num_plot_samples": 100,
+
+    "scale_dataset": true,
+    "convert_to_tensor": true,
+    "save_tensors": true
+}

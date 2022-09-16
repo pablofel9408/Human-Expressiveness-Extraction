@@ -7,3 +7,13 @@
 *.txt
 *.tar
 *.tar.bz2
+*.dat
+*.anm
+*.zip
+*.pt
+*.m
+*.mat
+*.pyc
+*.trc
+*.DS_Store
+*.asv
