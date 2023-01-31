@@ -29,6 +29,7 @@ class Simulation_Methods():
     def __init__(self, constants, model, scalers_path) -> None:
 
         self.dx = 0.016
+        self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
 
         self.cst = constants
         self.scalers_path = scalers_path
@@ -38,8 +39,10 @@ class Simulation_Methods():
         self.scalers = []
         
         if model:
-            self.device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
             self.translation_model = model.to(self.device)
+
+    def set_model(self, model):
+        self.translation_model = model.to(self.device)
 
     def set_environment(self, no_env=False):
 
@@ -351,10 +354,10 @@ class Simulation_Methods():
         
         return df
     
-    def generate_output_analysis_single_ssample(self, tag="val", neutral=False, not_save=False):
+    def generate_output_analysis_single_ssample(self, tag="val", neutral=False, not_save=False, not_expressive=False):
         random.seed(25)
         random_value = random.randint(0,self.robot_data.size()[0])
-        print("Robot Dataset Random Value: ", random_value)
+        # print("Robot Dataset Random Value: ", random_value)
         self.human_data = torch.tensor(self.human_data)
         robot_traj_sample_copy = self.robot_data[random_value]
         robot_traj_sample = self.robot_data[random_value].unsqueeze(0).repeat(self.human_data.size()[0],1,1)
@@ -376,30 +379,35 @@ class Simulation_Methods():
                     cont_att, loc_att_human, loc_att_robot = self.translation_model(seq_robot.float(), seq_human.float(),
                                                                                     data_neutral_style)
 
-        print(out_hat_twist.size())
+        # print(out_hat_twist.size())
         gen_trajectories = out_hat_twist.cpu().numpy()
         for i in range(np.shape(gen_trajectories)[0]):
             gen_trajectories[i] = utilities.filter_signal_2(gen_trajectories[i])
-        print(np.shape(gen_trajectories))
+        # print(np.shape(gen_trajectories))
         # np.savetxt("gen_trajectories_"+tag+".csv", gen_trajectories, delimiter=",")
         gen_trajectories = np.transpose(gen_trajectories,(0,2,1))
 
         expressive_qualities = []
         cosine_similarity_values = []
         robot_traj_sample_copy = robot_traj_sample_copy.detach().clone().cpu().numpy()
-        print(np.shape(gen_trajectories[0]))
+        robot_traj_sample = robot_traj_sample.detach().clone().cpu().numpy()
+        # print(np.shape(gen_trajectories[0]))
         for i in range(np.shape(gen_trajectories)[0]):
-            dict_gen = self.construct_signals_dict_vel(gen_trajectories[i],
-                                                    {key:None  for key in ["pos","vel","acc","jerk"]})
-            expressive_qualities.append(utilities.calc_expressive_qualities(dict_gen, alpha=1))
+
+            if not not_expressive:
+                dict_gen = self.construct_signals_dict_vel(gen_trajectories[i],
+                                                        {key:None  for key in ["pos","vel","acc","jerk"]})
+                expressive_qualities.append(utilities.calc_expressive_qualities(dict_gen, alpha=1))
             
             cosine = np.sum(gen_trajectories[i]*robot_traj_sample_copy, axis=0)/(norm(gen_trajectories[i], axis=0)*norm(robot_traj_sample_copy, axis=0))
             cosine_similarity_values.append(cosine)
+        
+        mse = ((gen_trajectories - robot_traj_sample)**2).mean(axis=(0,1,2))
 
         cosine_similarity_values = np.asarray(cosine_similarity_values)
-        x = np.linspace(0,len(cosine_similarity_values),len(cosine_similarity_values))
-        print(np.shape(cosine_similarity_values))
-        print(np.mean(cosine_similarity_values,axis=0))
+        # x = np.linspace(0,len(cosine_similarity_values),len(cosine_similarity_values))
+        # print(np.shape(cosine_similarity_values))
+        # print(np.mean(cosine_similarity_values,axis=0))
         # for k in range(np.shape(cosine_similarity_values)[1]):
         #     plt.figure()
         #     plt.bar(x,cosine_similarity_values[:,k])
@@ -412,7 +420,7 @@ class Simulation_Methods():
             df.to_csv(os.path.join("C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling", 
                                         "generated_single_sample_"+tag+"_seed_"+str(random_value)+".csv"))
         # utilities.close_script()
-        return np.mean(cosine_similarity_values,axis=0)
+        return np.mean(cosine_similarity_values,axis=0), mse
 
     def generate_poses(self, neutral=False):
         # random.seed(100)

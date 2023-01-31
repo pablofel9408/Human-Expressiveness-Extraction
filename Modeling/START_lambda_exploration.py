@@ -5,7 +5,9 @@ import pathlib
 import random
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 import torch
+import tqdm
 
 from Pendulum_Twist_Sim.doublependulum_fsm_class import FSM_Sim
 from Pendulum_Twist_Sim.data_processing import DataProcessing
@@ -97,26 +99,65 @@ def load_files_preproc_dataset():
     
 def main():
 
+    max_gain = 100 
+    steps = 1
+
     dataset,dataset_constants_human,dataset_constants_robot,\
         model_constants, simulation_constants = load_files_preproc_dataset()
-    
-    similarity_arr = []
-    for lambda_val in range(0,100,5):
-        model_constants["model_config"]["generator"]["twist_generation"]["lambda_gain"] = lambda_val
-        modeling_proc_obj = ModelingGAN(model_constants)
-        modeling_proc_obj.set_input_data(dataset, expressive=dataset_constants_human["expressive_data"])
-        epoch, trainLoss, valLoss, model = modeling_proc_obj.load_model(evalFlag=True)
-        model.eval()
-        simulation_obj = START_simulation.Simulation_Methods(simulation_constants, model, dataset_constants_robot["scalers_path"])
-        neutral_data = modeling_proc_obj.return_neutral_data() if model_constants["neutral_style"] else None
+
+
+    modeling_proc_obj = ModelingGAN(model_constants)
+    modeling_proc_obj.set_input_data(dataset, expressive=dataset_constants_human["expressive_data"])
+    simulation_obj = START_simulation.Simulation_Methods(simulation_constants, None, dataset_constants_robot["scalers_path"])
+    neutral_data = modeling_proc_obj.return_neutral_data() if model_constants["neutral_style"] else None
+    file = open("best_indices.txt", "a") 
+    for dataset_tag in ["train", "val", "test"]:
+        print("----Evaluating Dataset " + dataset_tag)
         simulation_obj.set_input_data(dataset, neutral_data=neutral_data,
-                                        tag="train", neutral=model_constants["neutral_style"])
-        cosine_similarity_mean = simulation_obj.generate_output_analysis_single_ssample(tag="train", neutral=model_constants["neutral_style"], not_save=True)
-        similarity_arr.append(cosine_similarity_mean)
-    similarity_arr = np.asarray(similarity_arr)
-    import matplotlib.pyplot as plt
-    plt.plot(similarity_arr)
-    plt.show()
+                                        tag=dataset_tag, neutral=model_constants["neutral_style"])
+        similarity_arr = []
+        mse_arr = []
+        prev_best_mean = [0,0,1000000,0]
+        for lambda_val in tqdm.tqdm(range(0,max_gain,steps)):
+            modeling_proc_obj.set_lambda_gain(lambda_val)
+            epoch, trainLoss, valLoss, model = modeling_proc_obj.load_model(evalFlag=True)
+            model.eval()
+            simulation_obj.set_model(model)
+            cosine_similarity_mean, mse_twist = simulation_obj.generate_output_analysis_single_ssample(tag=dataset_tag, 
+                                                                                            neutral=model_constants["neutral_style"], 
+                                                                                            not_save=True, not_expressive=True)
+            similarity_arr.append(cosine_similarity_mean)
+            mse_arr.append(mse_twist)
+
+            if (np.mean(cosine_similarity_mean) > prev_best_mean[0]) and (prev_best_mean[1]!=0):
+                prev_best_mean[0] = np.mean(cosine_similarity_mean)
+                prev_best_mean[1] = lambda_val
+
+            if (mse_twist < prev_best_mean[2]) and (prev_best_mean[3]!=0):
+                prev_best_mean[2] = mse_twist
+                prev_best_mean[3] = lambda_val
+ 
+        similarity_arr = np.asarray(similarity_arr)
+        file.write(f"\n Best Cosine Similarity {prev_best_mean[0]}, Best MSE {mse_twist} for Dataset {dataset_tag} - Lambda {prev_best_mean[1]} \n")
+        labels = ["VX","VY","VZ","AVX","AVY","AVZ"]
+        samples = np.linspace(0,max_gain,max_gain//steps)
+        fig, axs = plt.subplots(1,2)
+        for n, ax in enumerate(axs.flat):
+            if n < 1:
+                for coord in range(np.shape(similarity_arr)[1]):
+                    ax.plot(samples,similarity_arr[:,coord], linewidth=2.0, label=labels[coord])
+                ax.set_ylabel('Cosine Similarity', fontsize=14)
+                ax.set_title('Gain Value Lambda vs Cosine Similarity - Dataset: ' + dataset_tag, fontsize=16)
+                ax.legend()
+            else:
+                ax.plot(samples,mse_arr, linewidth=2.0)
+                ax.set_ylabel('Mean Squared Error', fontsize=14)
+                ax.set_title('Gain Value Lambda vs Mean Squared Error - Dataset: ' + dataset_tag, fontsize=16)
+            ax.set_xlabel('Value of Lambda', fontsize=14)
+        fig.suptitle("Effect of Lambda Gain On Robot Task Ressemblance", fontsize=20)
+        plt.show()
+
+    file.close()
     # simulation_obj.set_input_data(dataset, neutral_data=neutral_data, 
     #                                 tag="val", neutral=model_constants["neutral_style"])
     # simulation_obj.generate_output_analysis_single_ssample(tag="val", neutral=model_constants["neutral_style"], not_save=True)
