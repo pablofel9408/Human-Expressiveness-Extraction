@@ -1,0 +1,48 @@
+{   
+    "modelPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\Model",
+    "historyPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\History\\robot",
+    "pretrained_model_path":"C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\Best Model Weights\\Last_Hidden\\model_NVAE_-105.62657083047402_0.pth",
+    "modelName": 0,
+
+    "pretrained_model":true,
+    "visualize_label_dist":false,
+
+    "optimizer": "adam",
+    "anneiling": false,
+
+    "model_config": {"encoder":{"input_dim":6,
+                                "conv_blocks_num":2,
+                                "conv_hidden":[15,27],
+                                "conv_kernel":[7,5],
+                                "batchnorm": true,
+                                "lstm_hidden_dim": 30,
+                                "num_lstm_layers":4,
+                                "lstm_dir":false,
+                                "z_dim": 30},
+
+                    "decoder":{"input_dim":30,
+                                "output_dim":6,
+                                "conv_blocks_num":2,
+                                "conv_hidden":[27,15],
+                                "conv_kernel":[5,7],
+                                "batchnorm": true,
+                                "lstm_hidden_dim": 30,
+                                "num_lstm_layers":4,
+                                "lstm_dir":false,
+                                "padding":0,
+                                "dilation":1,
+                                "stride":1}
+                    },
+
+    "modelKey": "NVAE",
+    "batch_size": 16,
+
+    "learning_rate": 1e-4,
+    "L2regularizer": 1e-5,
+    "LRschedulerMode": "min",
+    "LRfactor": 0.5,
+    "LRpatience": 10,
+
+    "epochs_num": 10000, 
+    "earlyStopPatience": 300
+}

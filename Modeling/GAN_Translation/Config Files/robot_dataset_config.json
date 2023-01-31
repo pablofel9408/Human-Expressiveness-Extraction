@@ -1,0 +1,18 @@
+{
+    "dataset_paths": "C:\\Users\\posorio\\Documents\\Expressive movement\\Data Engineering\\Datasets\\Robot",
+    "scalers_path":"C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\Scalers_2",
+    "processed_data_path":"C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\Processed Input Data_2",
+    "common_folder_name": "Dataset Numpy_2",
+
+    "train_ratio": 0.75,
+    "validation_ratio": 0.15,
+    "test_ratio": 0.10,
+
+    "normalization": true,
+    "visualize_data":true,
+    "convert_to_tensor":true,
+
+    "save_dataset": true,
+    "load_from_path": true
+
+}

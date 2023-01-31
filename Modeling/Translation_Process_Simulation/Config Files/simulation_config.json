@@ -1,0 +1,12 @@
+{
+    
+    "images_save_path": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Translation_Process_Simulation\\Visualizations\\Plots",
+    "video_save_path": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Translation_Process_Simulation\\Visualizations\\Videos",
+    
+    "robot": "manipulator",
+    "expressive_dataset_generation": true,
+    
+    "visualize": false,
+    "simulation_label": "GAN Signal",
+    "save_sim": false
+}

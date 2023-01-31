@@ -1,0 +1,53 @@
+{   
+    "modelPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\Model",
+    "historyPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\History",
+    "pretrained_model_path":"C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\Best Model Weights\\Last_Hidden\\model_LVAE_-158.054105418069_0.pth",
+    "modelName": 0,
+
+    "pretrained_model":false,
+    "visualize_label_dist":true,
+
+    "optimizer": "adam",
+    "anneiling": false,
+
+    "model_config": {"encoder":{"input_dim":6,
+                                "conv_blocks_num":2,
+                                "conv_hidden":[9,12],
+                                "conv_kernel":[7,5],
+                                "batchnorm": true,
+                                "lstm_hidden_dim": 25,
+                                "num_lstm_layers":3,
+                                "lstm_dir":false,
+                                "z_dim": 30},
+
+                    "decoder":{"input_dim":30,
+                                "output_dim":6,
+                                "conv_blocks_num":2,
+                                "conv_hidden":[12,9],
+                                "conv_kernel":[5,7],
+                                "batchnorm": true,
+                                "lstm_hidden_dim": 25,
+                                "num_lstm_layers":3,
+                                "lstm_dir":false,
+                                "padding":0,
+                                "dilation":1,
+                                "stride":1},
+
+                    "latent_reg":{"input_dim":1500,
+                            "output_dim":5,
+                            "hidden_dims":[500,100,20]}
+                    },
+
+    "modelKey": "LVAE",
+    "batch_size": 8,
+
+    "learning_rate": 1e-4,
+    "L2regularizer": 1e-5,
+    "LRschedulerMode": "min",
+    "LRfactor": 0.5,
+    "LRpatience": 15,
+    "lambda_loss": 0.4,
+
+    "epochs_num": 10000, 
+    "earlyStopPatience": 300
+}

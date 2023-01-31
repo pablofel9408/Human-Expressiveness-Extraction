@@ -1,0 +1,103 @@
+{   
+    "modelPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\GAN_Translation\\Models",
+    "historyPath": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\GAN_Translation\\History",
+    "pretrained_model_path":"C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\GAN_Translation\\Models\\GAN GAN\\model_GAN_7.745268535614014_0.pth",
+    "pretrained_model_path_Robot_VAE":"C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\Best Model Weights\\Last_Hidden\\model_NVAE_-105.62657083047402_0.pth",
+    "pretrained_model_path_Human_VAE":"C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Robot_Feature_Extraction\\Best Model Weights\\Last_Hidden\\model_LVAE_-158.054105418069_0.pth",
+    
+    "netural_data_path_mean": "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Data_Exploration\\Output Data\\Mean Latent Encodings",
+    "neutral_style": true,
+
+    "modelName": 0,
+
+    "pretrained":true,
+
+    "optimizer": "adam",
+    "anneiling": false,
+
+    "h_param": {
+        "generator": {
+            "learning_rate": 1e-3,
+            "L2regularizer": 1e-5,
+            "beta1":0.5
+        },
+
+        "discriminator": {
+            "learning_rate": 1e-3,
+            "L2regularizer": 0,
+            "beta1":0.5
+        }
+    },
+
+    "model_config": {
+
+        "generator":{
+            "attention_mechanism":{
+                    "multihead":true,
+
+                    "content": {
+                        "feat_dim":60,
+                        "seq_len":50
+                        },
+
+                    "location": {
+                        "seq_len":50
+                        },
+
+                    "multihead_config": {
+                        "feat_dim":30,
+                        "seq_len":50,
+                        "num_heads":6
+                        }
+            },
+
+        "twist_generation":{
+                "use_cont": false,
+
+                "lambda_gain": 1,
+                "input_dim":30,
+                "input_dim2":30,
+                "output_dim":6,
+
+                "conv_blocks_num":2,
+                "conv_hidden":[30,30],
+                "conv_kernel":[5,7],
+                "padding":0,
+                "dilation":1,
+                "stride":1,
+
+                "lstm_hidden_dim": 30,
+                "num_lstm_layers":3,
+                "lstm_dir":false
+            }
+        },
+
+        "discriminator":{
+            "input_size":1500,
+            "output_dim":1,
+            "hidden_dim":[500]
+        }
+
+    },
+    
+    "loss_functions_config": {
+        "alpha": 0.8,
+        "squared": false
+    },
+    
+    "generator_loss_add": "change ratio",
+    "modelKey": "GAN",
+    "batch_size": 128,
+
+    "LRschedulerMode": "min",
+    "LRfactor": 0.5,
+    "LRpatience": 15,
+    "lambda_coeff": [2,100,15,10],
+
+    "wait_epoch_num":10,
+
+    "epochs_num": 100, 
+    "earlyStopPatience": 200,
+
+    "visualize_evaluation": false
+}
