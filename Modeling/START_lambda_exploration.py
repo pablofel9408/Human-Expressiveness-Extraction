@@ -99,7 +99,7 @@ def load_files_preproc_dataset():
     
 def main():
 
-    max_gain = 100 
+    max_gain = 500 
     steps = 1
 
     dataset,dataset_constants_human,dataset_constants_robot,\
@@ -129,16 +129,17 @@ def main():
             similarity_arr.append(cosine_similarity_mean)
             mse_arr.append(mse_twist)
 
-            if (np.mean(cosine_similarity_mean) > prev_best_mean[0]) and (prev_best_mean[1]!=0):
+            if (np.mean(cosine_similarity_mean) > prev_best_mean[0]) and (lambda_val > 0):
                 prev_best_mean[0] = np.mean(cosine_similarity_mean)
                 prev_best_mean[1] = lambda_val
 
-            if (mse_twist < prev_best_mean[2]) and (prev_best_mean[3]!=0):
+            if (mse_twist < prev_best_mean[2]) and (lambda_val> 0):
                 prev_best_mean[2] = mse_twist
                 prev_best_mean[3] = lambda_val
  
         similarity_arr = np.asarray(similarity_arr)
-        file.write(f"\n Best Cosine Similarity {prev_best_mean[0]}, Best MSE {mse_twist} for Dataset {dataset_tag} - Lambda {prev_best_mean[1]} \n")
+        file.write(f"\n Best Cosine Similarity {prev_best_mean[0]} for Dataset {dataset_tag} - Lambda Cosine: {prev_best_mean[1]}\n")
+        file.write(f"\n Best MSE {prev_best_mean[2]} for Dataset {dataset_tag} - Lambda MSE: {prev_best_mean[3]} \n")
         labels = ["VX","VY","VZ","AVX","AVY","AVZ"]
         samples = np.linspace(0,max_gain,max_gain//steps)
         fig, axs = plt.subplots(1,2)
@@ -154,7 +155,7 @@ def main():
                 ax.set_ylabel('Mean Squared Error', fontsize=14)
                 ax.set_title('Gain Value Lambda vs Mean Squared Error - Dataset: ' + dataset_tag, fontsize=16)
             ax.set_xlabel('Value of Lambda', fontsize=14)
-        fig.suptitle("Effect of Lambda Gain On Robot Task Ressemblance", fontsize=20)
+        fig.suptitle("Effect of Lambda Gain On Robot Task Resemblance", fontsize=20)
         plt.show()
 
     file.close()

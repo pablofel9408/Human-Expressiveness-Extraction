@@ -379,8 +379,10 @@ class Simulation_Methods():
                     cont_att, loc_att_human, loc_att_robot = self.translation_model(seq_robot.float(), seq_human.float(),
                                                                                     data_neutral_style)
 
-        # print(out_hat_twist.size())
         gen_trajectories = out_hat_twist.cpu().numpy()
+        robot_traj_sample_copy = robot_traj_sample_copy.detach().clone().cpu().numpy()
+        robot_traj_sample = robot_traj_sample.detach().clone().cpu().numpy()
+        # print(out_hat_twist.size())
         for i in range(np.shape(gen_trajectories)[0]):
             gen_trajectories[i] = utilities.filter_signal_2(gen_trajectories[i])
         # print(np.shape(gen_trajectories))
@@ -389,8 +391,6 @@ class Simulation_Methods():
 
         expressive_qualities = []
         cosine_similarity_values = []
-        robot_traj_sample_copy = robot_traj_sample_copy.detach().clone().cpu().numpy()
-        robot_traj_sample = robot_traj_sample.detach().clone().cpu().numpy()
         # print(np.shape(gen_trajectories[0]))
         for i in range(np.shape(gen_trajectories)[0]):
 
