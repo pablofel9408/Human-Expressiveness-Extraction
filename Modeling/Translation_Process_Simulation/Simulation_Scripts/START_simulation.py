@@ -420,7 +420,7 @@ class Simulation_Methods():
             df.to_csv(os.path.join("C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling", 
                                         "generated_single_sample_"+tag+"_seed_"+str(random_value)+".csv"))
         # utilities.close_script()
-        return np.mean(cosine_similarity_values,axis=0), mse
+        return np.mean(cosine_similarity_values,axis=0), mse, pd.DataFrame(expressive_qualities)
 
     def generate_poses(self, neutral=False):
         # random.seed(100)

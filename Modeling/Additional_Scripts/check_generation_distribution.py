@@ -109,7 +109,10 @@ for idx,tag in enumerate(tags):
     # df = df.loc[df.index[indices]]
     # df2 = df2.loc[df2.index[indices]]
     df3 = df3[df3["emo"]!="NEE"].reset_index(drop=True)
+
+    from scipy.stats import kstest
     
+    print(list(df.columns)[1:-1])
     for n,qualitie in enumerate(df.columns):
         if n > 0 and n < 5:
             aa = pd.concat([df[qualitie],df2[qualitie]],axis=1)
@@ -124,6 +127,10 @@ for idx,tag in enumerate(tags):
             print(f"Kolmogoro-Sirnov Laban Qualities {qualitie} Robot - Network Output: {ks_statistic_kde(df4[qualitie].to_numpy(), df2[qualitie].to_numpy(), None)}")
             print(f"Jensen-Shannon Laban Qualities {qualitie} Human - Network Output: {js_metric(df[qualitie].to_numpy(), df2[qualitie].to_numpy(), None)}")
             print(f"Jensen-Shannon Laban Qualities {qualitie} Robot - Network Output: {js_metric(df4[qualitie].to_numpy(), df2[qualitie].to_numpy(), None)}")
+            a = kstest(df2[qualitie].to_numpy(),df[qualitie].to_numpy())
+            print(f"Jensen-Shannon Laban Qualities {qualitie} Human - Network Output: {a}")
+            b = kstest(df2[qualitie].to_numpy(),df4[qualitie].to_numpy())
+            print(f"Jensen-Shannon Laban Qualities {qualitie} Robot - Network Output: {b}")
             plt.show()
 
     cols = df.columns[1:]

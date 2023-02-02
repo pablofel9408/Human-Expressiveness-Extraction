@@ -105,29 +105,51 @@ def main():
     dataset,dataset_constants_human,dataset_constants_robot,\
         model_constants, simulation_constants = load_files_preproc_dataset()
 
-
     modeling_proc_obj = ModelingGAN(model_constants)
     modeling_proc_obj.set_input_data(dataset, expressive=dataset_constants_human["expressive_data"])
     simulation_obj = START_simulation.Simulation_Methods(simulation_constants, None, dataset_constants_robot["scalers_path"])
-    neutral_data = modeling_proc_obj.return_neutral_data() if model_constants["neutral_style"] else None
-    file = open("best_indices.txt", "a") 
+    neutral_data = modeling_proc_obj.return_neutral_data() if model_constants["neutral_style"] else None 
     for dataset_tag in ["train", "val", "test"]:
+        df_laban_human = pd.read_csv("C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\laban_qualities_"+ dataset_tag + "_human.csv")
+        df_laban_robot = pd.read_csv("C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\laban_qualities_"+ dataset_tag + "_robot.csv")
+
         print("----Evaluating Dataset " + dataset_tag)
         simulation_obj.set_input_data(dataset, neutral_data=neutral_data,
                                         tag=dataset_tag, neutral=model_constants["neutral_style"])
         similarity_arr = []
         mse_arr = []
+        qualities_names = list(df_laban_human.columns)[1:-1]
+        kl_div_arr = {"robot":{i:[] for i in qualities_names},"human":{i:[] for i in qualities_names}}
+        shannon_jenssen_dist_arr = {"robot":{i:[] for i in qualities_names},"human":{i:[] for i in qualities_names}}
         prev_best_mean = [0,0,1000000,0]
         for lambda_val in tqdm.tqdm(range(0,max_gain,steps)):
             modeling_proc_obj.set_lambda_gain(lambda_val)
             epoch, trainLoss, valLoss, model = modeling_proc_obj.load_model(evalFlag=True)
             model.eval()
             simulation_obj.set_model(model)
-            cosine_similarity_mean, mse_twist = simulation_obj.generate_output_analysis_single_ssample(tag=dataset_tag, 
+            cosine_similarity_mean, mse_twist, expressive_qualities = simulation_obj.generate_output_analysis_single_ssample(tag=dataset_tag, 
                                                                                             neutral=model_constants["neutral_style"], 
-                                                                                            not_save=True, not_expressive=True)
+                                                                                            not_save=True, not_expressive=False)
             similarity_arr.append(cosine_similarity_mean)
             mse_arr.append(mse_twist)
+
+            for n,qualitie in enumerate(expressive_qualities.columns):
+                if qualitie in qualities_names:
+                    xs, p1, p2 = utilities._get_point_estimates(df_laban_human[qualitie].to_numpy(), expressive_qualities[qualitie].to_numpy(), None)
+                    kl_human = utilities._kl_divergence(xs, p1, p2)
+                    kl_div_arr["human"][qualitie].append(kl_human)
+                    # print(f"KL Divergence Laban Qualities {qualitie} Human - Network Output: {kl_human}")
+                    xs, p1, p2 = utilities._get_point_estimates(df_laban_robot[qualitie].to_numpy(), expressive_qualities[qualitie].to_numpy(), None)
+                    kl_robot = utilities._kl_divergence(xs, p1, p2)
+                    kl_div_arr["robot"][qualitie].append(kl_robot)
+                    # print(f"KL Divergence Laban Qualities {qualitie} Robot - Network Output: {kl_robot}")
+                    js_human = utilities.js_metric(df_laban_human[qualitie].to_numpy(), expressive_qualities[qualitie].to_numpy(), None)
+                    shannon_jenssen_dist_arr["human"][qualitie].append(js_human)
+                    # print(f"Jensen-Shannon Laban Qualities {qualitie} Human - Network Output: {js_human}")
+                    js_robot = utilities.js_metric(df_laban_robot[qualitie].to_numpy(), expressive_qualities[qualitie].to_numpy(), None)
+                    shannon_jenssen_dist_arr["robot"][qualitie].append(js_robot)
+                    # print(f"Jensen-Shannon Laban Qualities {qualitie} Robot - Network Output: {js_robot}")               
+    
 
             if (np.mean(cosine_similarity_mean) > prev_best_mean[0]) and (lambda_val > 0):
                 prev_best_mean[0] = np.mean(cosine_similarity_mean)
@@ -138,8 +160,25 @@ def main():
                 prev_best_mean[3] = lambda_val
  
         similarity_arr = np.asarray(similarity_arr)
-        file.write(f"\n Best Cosine Similarity {prev_best_mean[0]} for Dataset {dataset_tag} - Lambda Cosine: {prev_best_mean[1]}\n")
-        file.write(f"\n Best MSE {prev_best_mean[2]} for Dataset {dataset_tag} - Lambda MSE: {prev_best_mean[3]} \n")
+        concat_outputs = []
+        for qualitie in qualities_names:
+            concat_outputs.append(kl_div_arr["robot"][qualitie])
+            concat_outputs.append(shannon_jenssen_dist_arr["robot"][qualitie])
+            concat_outputs.append(kl_div_arr["human"][qualitie])
+            concat_outputs.append(shannon_jenssen_dist_arr["human"][qualitie])
+        
+        for i in range(np.shape(similarity_arr)[1]):
+            concat_outputs.append([similarity_arr[0,i],similarity_arr[1,i]])
+        concat_outputs.append(mse_arr)
+        df_outputs = pd.DataFrame(concat_outputs).T
+        df_outputs.columns = [qualitie+"_"+tag+"_"+metric  for qualitie in qualities_names for tag in ["robot","human"] for metric in ["kl_div","js_dist"]] +\
+                                 ["cosine_similarity_"+feature+"_"+axis for feature in ["v","av"] for axis in ["x","y","z"]] +\
+                                     ["mse"]
+        df_outputs.to_csv("distribution_and_similarity_"+dataset_tag+".csv")
+        # concat_outputs = np.concatenate()
+
+        # file.write(f"\n Best Cosine Similarity {prev_best_mean[0]} for Dataset {dataset_tag} - Lambda Cosine: {prev_best_mean[1]}\n")
+        # file.write(f"\n Best MSE {prev_best_mean[2]} for Dataset {dataset_tag} - Lambda MSE: {prev_best_mean[3]} \n")
         labels = ["VX","VY","VZ","AVX","AVY","AVZ"]
         samples = np.linspace(0,max_gain,max_gain//steps)
         fig, axs = plt.subplots(1,2)
@@ -157,8 +196,39 @@ def main():
             ax.set_xlabel('Value of Lambda', fontsize=14)
         fig.suptitle("Effect of Lambda Gain On Robot Task Resemblance", fontsize=20)
         plt.show()
+        
+        fig, axs = plt.subplots(1,2)
+        for n, ax in enumerate(axs.flat):
+            if n < 1:
+                for key, val in kl_div_arr["human"].items():
+                    ax.plot(samples,val, linewidth=2.0, label=key)
+                ax.set_title('Human vs Generated Output - Dataset: ' + dataset_tag, fontsize=16)
+            else:
+                for key, val in kl_div_arr["robot"].items():
+                    ax.plot(samples,val, linewidth=2.0, label=key)
+                ax.set_title('Robot vs Generated Output - Dataset: ' + dataset_tag, fontsize=16)
+            ax.legend()
+            ax.set_ylabel('Kullback Leibler Divergence', fontsize=14)
+            ax.set_xlabel('Value of Lambda', fontsize=14)
+        fig.suptitle("Effect of Lambda Gain On KL Divergence", fontsize=20)
+        plt.show()
 
-    file.close()
+        fig, axs = plt.subplots(1,2)
+        for n, ax in enumerate(axs.flat):
+            if n < 1:
+                for key, val in shannon_jenssen_dist_arr["human"].items():
+                    ax.plot(samples,val, linewidth=2.0, label=key)
+                ax.set_title('Human vs Generated Output - Dataset: ' + dataset_tag, fontsize=16)
+            else:
+                for key, val in shannon_jenssen_dist_arr["robot"].items():
+                    ax.plot(samples,val, linewidth=2.0, label=key)
+                ax.set_title('Robot vs Generated Output - Dataset: ' + dataset_tag, fontsize=16)
+            ax.legend()
+            ax.set_ylabel('Jensen-Shannon Distance', fontsize=14)
+            ax.set_xlabel('Value of Lambda', fontsize=14)
+        fig.suptitle("Effect of Lambda Gain On JS Distance", fontsize=20)
+        plt.show()
+
     # simulation_obj.set_input_data(dataset, neutral_data=neutral_data, 
     #                                 tag="val", neutral=model_constants["neutral_style"])
     # simulation_obj.generate_output_analysis_single_ssample(tag="val", neutral=model_constants["neutral_style"], not_save=True)
