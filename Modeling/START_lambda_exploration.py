@@ -118,6 +118,7 @@ def main():
                                         tag=dataset_tag, neutral=model_constants["neutral_style"])
         similarity_arr = []
         mse_arr = []
+        rmse_arr_coord = []
         qualities_names = list(df_laban_human.columns)[1:-1]
         kl_div_arr = {"robot":{i:[] for i in qualities_names},"human":{i:[] for i in qualities_names}}
         shannon_jenssen_dist_arr = {"robot":{i:[] for i in qualities_names},"human":{i:[] for i in qualities_names}}
@@ -130,8 +131,11 @@ def main():
             cosine_similarity_mean, mse_twist, expressive_qualities = simulation_obj.generate_output_analysis_single_ssample(tag=dataset_tag, 
                                                                                             neutral=model_constants["neutral_style"], 
                                                                                             not_save=True, not_expressive=False)
+            rmse_by_coord = mse_twist[1]
+            mse_twist = mse_twist[0]
             similarity_arr.append(cosine_similarity_mean)
             mse_arr.append(mse_twist)
+            rmse_arr_coord.append(rmse_by_coord)
 
             for n,qualitie in enumerate(expressive_qualities.columns):
                 if qualitie in qualities_names:
@@ -196,9 +200,20 @@ def main():
             else:
                 ax.plot(samples,mse_arr, linewidth=2.0)
                 ax.set_ylabel('Root Mean Squared Error', fontsize=14)
-                ax.set_title('Gain Value Lambda vs Mean Squared Error - Dataset: ' + dataset_tag, fontsize=16)
+                ax.set_title('Gain Value Lambda vs Root Mean Squared Error - Dataset: ' + dataset_tag, fontsize=16)
             ax.set_xlabel('Value of Lambda', fontsize=14)
         fig.suptitle("Effect of Lambda Gain On Robot Task Resemblance", fontsize=20)
+        plt.show()
+
+        fig, ax = plt.subplots(1,1)
+        print(np.shape(rmse_arr_coord))
+        rmse_arr_coord = np.asarray(rmse_arr_coord)
+        for coord in range(np.shape(rmse_arr_coord)[1]):
+            ax.plot(samples,rmse_arr_coord[:,coord], linewidth=2.0, label=labels[coord])
+        ax.set_ylabel('Root Mean Squared Error', fontsize=14)
+        ax.legend()
+        ax.set_xlabel('Value of Lambda', fontsize=14)
+        fig.suptitle('Gain Value Lambda vs Root Mean Squared Error - Dataset: ' + dataset_tag, fontsize=20)
         plt.show()
         
         fig, axs = plt.subplots(1,2)
