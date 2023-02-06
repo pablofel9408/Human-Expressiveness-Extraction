@@ -402,7 +402,7 @@ class Simulation_Methods():
             cosine = np.sum(gen_trajectories[i]*robot_traj_sample_copy, axis=0)/(norm(gen_trajectories[i], axis=0)*norm(robot_traj_sample_copy, axis=0))
             cosine_similarity_values.append(cosine)
         
-        mse = ((gen_trajectories - robot_traj_sample)**2).mean(axis=(0,1,2))
+        rmse = np.sqrt(((gen_trajectories - robot_traj_sample)**2).mean(axis=(0,1,2)))
 
         cosine_similarity_values = np.asarray(cosine_similarity_values)
         # x = np.linspace(0,len(cosine_similarity_values),len(cosine_similarity_values))
@@ -420,7 +420,7 @@ class Simulation_Methods():
             df.to_csv(os.path.join("C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling", 
                                         "generated_single_sample_"+tag+"_seed_"+str(random_value)+".csv"))
         # utilities.close_script()
-        return np.mean(cosine_similarity_values,axis=0), mse, pd.DataFrame(expressive_qualities)
+        return np.mean(cosine_similarity_values,axis=0), rmse, pd.DataFrame(expressive_qualities)
 
     def generate_poses(self, neutral=False):
         # random.seed(100)

@@ -99,7 +99,7 @@ def load_files_preproc_dataset():
     
 def main():
 
-    max_gain = 500 
+    max_gain = 500
     steps = 1
 
     dataset,dataset_constants_human,dataset_constants_robot,\
@@ -167,13 +167,17 @@ def main():
             concat_outputs.append(kl_div_arr["human"][qualitie])
             concat_outputs.append(shannon_jenssen_dist_arr["human"][qualitie])
         
-        for i in range(np.shape(similarity_arr)[1]):
-            concat_outputs.append([similarity_arr[0,i],similarity_arr[1,i]])
+        # print(np.shape(similarity_arr))
+        # for i in range(np.shape(similarity_arr)[0]):
+        #     concat_outputs.append([similarity_arr[i,j] for j in range(np.shape(similarity_arr)[1])])
         concat_outputs.append(mse_arr)
         df_outputs = pd.DataFrame(concat_outputs).T
+        df_similarity = pd.DataFrame(similarity_arr)
+        df_outputs.reset_index(drop=True, inplace=True)
+        df_similarity.reset_index(drop=True, inplace=True)
+        df_outputs = pd.concat([df_outputs,df_similarity],axis=1,ignore_index=True)
         df_outputs.columns = [qualitie+"_"+tag+"_"+metric  for qualitie in qualities_names for tag in ["robot","human"] for metric in ["kl_div","js_dist"]] +\
-                                 ["cosine_similarity_"+feature+"_"+axis for feature in ["v","av"] for axis in ["x","y","z"]] +\
-                                     ["mse"]
+                                ["mse"] + ["cosine_similarity_"+feature+"_"+axis for feature in ["v","av"] for axis in ["x","y","z"]] 
         df_outputs.to_csv("distribution_and_similarity_"+dataset_tag+".csv")
         # concat_outputs = np.concatenate()
 
@@ -191,7 +195,7 @@ def main():
                 ax.legend()
             else:
                 ax.plot(samples,mse_arr, linewidth=2.0)
-                ax.set_ylabel('Mean Squared Error', fontsize=14)
+                ax.set_ylabel('Root Mean Squared Error', fontsize=14)
                 ax.set_title('Gain Value Lambda vs Mean Squared Error - Dataset: ' + dataset_tag, fontsize=16)
             ax.set_xlabel('Value of Lambda', fontsize=14)
         fig.suptitle("Effect of Lambda Gain On Robot Task Resemblance", fontsize=20)
@@ -211,6 +215,17 @@ def main():
             ax.set_ylabel('Kullback Leibler Divergence', fontsize=14)
             ax.set_xlabel('Value of Lambda', fontsize=14)
         fig.suptitle("Effect of Lambda Gain On KL Divergence", fontsize=20)
+        #determine axes and their limits 
+        ax_selec = [(ax, ax.get_ylim()) for ax in axs.flat]
+
+        #find maximum y-limit spread
+        max_delta = max([lmax for _, (_, lmax) in ax_selec])
+        min_delta = min([lmin for _, (lmin, _) in ax_selec])
+
+        #expand limits of all subplots according to maximum spread
+        for ax, (lmin, lmax) in ax_selec:
+            ax.set_ylim(min_delta, max_delta)
+
         plt.show()
 
         fig, axs = plt.subplots(1,2)
@@ -227,6 +242,18 @@ def main():
             ax.set_ylabel('Jensen-Shannon Distance', fontsize=14)
             ax.set_xlabel('Value of Lambda', fontsize=14)
         fig.suptitle("Effect of Lambda Gain On JS Distance", fontsize=20)
+        #determine axes and their limits 
+        ax_selec = [(ax, ax.get_ylim()) for ax in axs.flat]
+
+        #find maximum y-limit spread
+        max_delta = max([lmax for _, (_, lmax) in ax_selec])
+        min_delta = min([lmin for _, (lmin,_) in ax_selec])
+
+        #expand limits of all subplots according to maximum spread
+        for ax, (lmin, lmax) in ax_selec:
+            ax.set_ylim(min_delta, max_delta)
+
+
         plt.show()
 
     # simulation_obj.set_input_data(dataset, neutral_data=neutral_data, 
