@@ -20,6 +20,8 @@ from scipy import interpolate
 from scipy import integrate
 from scipy import signal
 
+import utilities
+
 class PendulumDataGeneration():
     def __init__(self, constants, model) -> None:
         self.dataset_constants_human = constants[0]
@@ -179,8 +181,11 @@ class PendulumDataGeneration():
     def generate_human_train_samples(self, trajectory, tag="train"):
         human_dataset_unscaled = self.unscaled_data_hum(self.human_dataset)
 
+        random.seed(80)
         random_human_indices = [random.randint(0,np.shape(self.human_dataset[tag][0])[0]-1) for _ in range(np.shape(trajectory)[0])]
-        same_human_indices = [random.randint(0,np.shape(self.human_dataset[tag][0])[0]-1)]*np.shape(trajectory)[0]
+        # same_human_indices = [random.randint(0,np.shape(self.human_dataset[tag][0])[0]-1)]*np.shape(trajectory)[0]
+        same_human_indices = [73]*np.shape(trajectory)[0]
+        print(same_human_indices)
         
         human_samples_random = self.human_dataset[tag][0][random_human_indices]
         human_samples_same = self.human_dataset[tag][0][same_human_indices]

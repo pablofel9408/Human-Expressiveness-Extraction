@@ -36,7 +36,7 @@ class FSM_Sim():
 
     def get_xml_path(self):
         #get the full path
-        xml_path = 'doublependulum_fsm.xml'
+        xml_path = 'doublependulum_fsm_multi.xml'
         dirname = os.path.dirname(__file__)
         abspath = os.path.join(dirname + "/" + xml_path)
         xml_path = abspath
@@ -132,6 +132,7 @@ class FSM_Sim():
     def set_initial_conditions(self):
         # Set initial condition
         self.data.qpos[0] = -1
+        self.data.qpos[2] = -1
 
     def set_cam_initila_conditions(self):
 
@@ -171,26 +172,34 @@ class FSM_Sim():
 
         self.a_swing2 = self.generate_trajectory(self.t_mid, self.t_end, self.q_mid, self.q_end)
 
-    def load_trajectories(self):
-        if flag==1:
+    def load_trajectories(self, num_traj):
+        if num_traj==1:
             trajectory = pd.read_csv(pendulum_trajectory_filepath)
             trajectory = trajectory.to_numpy()
-        elif flag==2:
+        elif num_traj==2:
             trajectory = np.load(trajectory_network_same_filepath)
-        elif flag==3:
+        elif num_traj==3:
             trajectory = np.load(trajectory_network_random_filepath)
-        elif flag==4:
+        elif num_traj==4:
             # trajectory = np.load("C:\\Users\\posorio\\Downloads\\5_dbpendulum_fsm\\5_dbpendulum_fsm\human_same_input_samples.npy")
             # trajectory = trajectory/500
             trajectory = np.load(trajectory_human_same_filepath_vel)
             # trajectory = trajectory/10
-        elif flag==5:
+        elif num_traj==5:
             trajectory = np.load(trajectory_human_random_filepath_vel)
             # trajectory = trajectory/500
             # trajectory[:,2] = trajectory[:,2]/2
         print(np.shape(trajectory))
 
-        self.trajectory = trajectory
+        return trajectory
+
+    def load_trajectory_from_path(self, path):
+        return np.load(path)
+
+    def set_trajectory(self, from_path=False):
+
+        self.trajectory_1 = self.load_trajectories(num_traj=1)
+        self.trajectory_2 = self.load_trajectories(num_traj=flag_cst)
 
     def controller(self, model,data):
         """
@@ -219,9 +228,13 @@ class FSM_Sim():
         J = np.concatenate((jacp, jacr))
 
         if LOAD_TRAJECTORY:
-            dq_ref = np.linalg.pinv(J) @ self.trajectory[self.count]
+            dq_ref = np.linalg.pinv(J) @ self.trajectory_1[self.count]
             self.data.ctrl[1] = self.data.qpos[0] + dq_ref[0]
             self.data.ctrl[4] = self.data.qpos[1] + dq_ref[1]
+
+            dq_ref = np.linalg.pinv(J) @ self.trajectory_2[self.count]
+            self.data.ctrl[7] = self.data.qpos[0] + dq_ref[0]
+            self.data.ctrl[10] = self.data.qpos[1] + dq_ref[1]
             self.count+=1
 
         else:
@@ -310,6 +323,6 @@ class FSM_Sim():
         self.init_controller()
 
         if LOAD_TRAJECTORY:
-            self.load_trajectories()
+            self.set_trajectory()
 
         self.sim_loop()

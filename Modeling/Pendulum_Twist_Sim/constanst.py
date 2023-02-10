@@ -10,7 +10,7 @@ t_hold = 0.5
 t_swing1 = 1.0
 t_swing2 = 1.0
 
-flag = 3
+flag_cst = 2
 # 2: same network output
 # 3: random network output
 # 4: same human input

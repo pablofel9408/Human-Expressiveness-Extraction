@@ -1,0 +1,66 @@
+<mujoco>
+	<option timestep="0.0001" integrator="RK4" >
+		<flag sensornoise="enable" energy="enable" contact="disable" />
+	</option>
+	<asset>
+		<texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0" width="512"
+			height="3072"/>
+		<texture type="2d" name="groundplane" builtin="checker" mark="edge" rgb1="0.2 0.3 0.4"
+			rgb2="0.1 0.2 0.3" markrgb="0.8 0.8 0.8" width="300" height="300"/>
+		<material name="groundplane" texture="groundplane" texuniform="true" texrepeat="5 5"
+			reflectance="0.2"/>
+	</asset>
+	<worldbody>
+        <light pos="0 0 1.5" dir="0 0 -1" directional="true"/>
+		<geom name="floor" size="0 0 0.05" type="plane" material="groundplane"/>
+		<body pos="0 0 2.3" euler="0 180 0">
+			<joint name="pin" type="hinge" axis = "0 -1 0" limited="true" range="-180 180" pos="0 0 -0.5"/>
+			<geom type="cylinder" size="0.05 0.5" rgba="0.9 0.5 0.13 1" mass="3.5"/>
+			<body pos="0 0.1 1" euler="0 0 0">
+				<joint name="pin2" type="hinge" axis = "0 -1 0" limited="true" range="0 90" pos="0 0 -0.5"/>
+				<geom type="cylinder" size="0.05 0.5" rgba="0.9 0.5 0.13 1" mass="1.5"/>
+				<body pos="0 0 0.55" euler="0 0 0">
+					<geom type="sphere" size="0.07" rgba="0.9 0 0 1" mass="0.4"/>
+					<!-- <site name="endeff" pos="0 0 0.2" size="0.1"/> -->
+				</body>
+			</body>
+		</body>
+		<body pos="0 0 2.3" euler="0 180 0">
+			<joint name="pin3" type="hinge" axis = "0 -1 0" limited="true" range="-180 180" pos="0 0 -0.5"/>
+			<geom type="cylinder" size="0.05 0.5" rgba="0.9 0.5 0.13 0.5" mass="3.5"/>
+			<body pos="0 0.1 1" euler="0 0 0">
+				<joint name="pin4" type="hinge" axis = "0 -1 0" limited="true" range="0 90" pos="0 0 -0.5"/>
+				<geom type="cylinder" size="0.05 0.5" rgba="0.9 0.5 0.13 0.5" mass="1.5"/>
+				<body pos="0 0 0.55" euler="0 0 0">
+					<geom type="sphere" size="0.07" rgba="0 0.9 0 1" mass="0.4"/>
+					<!-- <site name="endeff" pos="0 0 0.2" size="0.1"/> -->
+				</body>
+			</body>
+		</body>
+	</worldbody>
+	<actuator>
+		<motor joint="pin" name="torque" gear="1" ctrllimited="true" ctrlrange="-100 100" />
+		<position name="pservo1" joint="pin" kp="10" />
+		<velocity name="vservo1" joint="pin" kv="10" />
+		<motor joint="pin2" name="torque2" gear="1" ctrllimited="true" ctrlrange="-100 100" />
+		<position name="pservo2" joint="pin2" kp="10" />
+		<velocity name="vservo2" joint="pin2" kv="10" />
+
+		<motor joint="pin3" name="torque3" gear="1" ctrllimited="true" ctrlrange="-100 100" />
+		<position name="pservo3" joint="pin3" kp="10" />
+		<velocity name="vservo3" joint="pin3" kv="10" />
+		<motor joint="pin4" name="torque4" gear="1" ctrllimited="true" ctrlrange="-100 100" />
+		<position name="pservo4" joint="pin4" kp="10" />
+		<velocity name="vservo4" joint="pin4" kv="10" />
+	</actuator>
+
+	<!-- <sensor>
+		<framepos objtype="site" objname="endeff"/>
+		<framelinvel objtype="site" objname="endeff"/>
+	</sensor> -->
+
+	<!-- <sensor>
+		<jointpos joint="pin" noise="0.2"/>
+		<jointvel joint="pin" noise="1" />
+	</sensor> -->
+</mujoco>
