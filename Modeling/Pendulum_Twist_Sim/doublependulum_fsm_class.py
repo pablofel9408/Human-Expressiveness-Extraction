@@ -196,10 +196,14 @@ class FSM_Sim():
     def load_trajectory_from_path(self, path):
         return np.load(path)
 
-    def set_trajectory(self, from_path=False):
+    def set_trajectory(self, from_path=False, paths=[]):
 
-        self.trajectory_1 = self.load_trajectories(num_traj=1)
-        self.trajectory_2 = self.load_trajectories(num_traj=flag_cst)
+        if not from_path:
+            self.trajectory_1 = self.load_trajectories(num_traj=1)
+            self.trajectory_2 = self.load_trajectories(num_traj=flag_cst)
+        else:
+            self.trajectory_1 = self.load_trajectory_from_path(paths[0])
+            self.trajectory_2 = self.load_trajectory_from_path(paths[1])\
 
     def controller(self, model,data):
         """
@@ -322,7 +326,7 @@ class FSM_Sim():
         self.set_initial_conditions()
         self.init_controller()
 
-        if LOAD_TRAJECTORY:
-            self.set_trajectory()
+        if LOAD_TRAJECTORY:   
+            self.set_trajectory(from_path=LOAD_FROM_ARCHIVE,paths=path_to_compare)
 
         self.sim_loop()
