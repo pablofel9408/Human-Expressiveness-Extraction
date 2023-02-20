@@ -113,7 +113,7 @@ def main():
         elem = int(sys.argv[1])
 
     trajectories_paths = ["C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Robot\\trajectory_file_circle.csv",
-                            "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Robot\\trajectory_file_s_shape.csv"]
+                            "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Robot\\trajectory_file_s_shape_short.csv"]
     human_data_save_path  = "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Human_Data"
     dataset, model, dataset_constants_human, dataset_constants_robot, model_constants = load_files_preproc_dataset()
     mobile_data_obj = ProcessTrajectory([dataset_constants_human, dataset_constants_robot, model_constants],
