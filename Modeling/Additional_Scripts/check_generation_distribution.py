@@ -115,7 +115,9 @@ for idx,tag in enumerate(tags):
     print(list(df.columns)[1:-1])
     for n,qualitie in enumerate(df.columns):
         if n > 0 and n < 5:
-            aa = pd.concat([df[qualitie],df2[qualitie]],axis=1)
+            aa = pd.concat([df[qualitie],df2[qualitie],df4[qualitie]],axis=1)
+            print("Qualitie mean: ",aa.mean())
+            aa.columns = [qualitie+"_human",qualitie+"_network_output",qualitie+"_robot"]
             ax = aa.plot.kde()
             print(aa.mean())
             print(aa.std())
@@ -127,9 +129,9 @@ for idx,tag in enumerate(tags):
             print(f"Kolmogoro-Sirnov Laban Qualities {qualitie} Robot - Network Output: {ks_statistic_kde(df4[qualitie].to_numpy(), df2[qualitie].to_numpy(), None)}")
             print(f"Jensen-Shannon Laban Qualities {qualitie} Human - Network Output: {js_metric(df[qualitie].to_numpy(), df2[qualitie].to_numpy(), None)}")
             print(f"Jensen-Shannon Laban Qualities {qualitie} Robot - Network Output: {js_metric(df4[qualitie].to_numpy(), df2[qualitie].to_numpy(), None)}")
-            a = kstest(df2[qualitie].to_numpy(),df[qualitie].to_numpy())
+            a = kstest(df2[qualitie].to_numpy(),df[qualitie].to_numpy(), alternative='less')
             print(f"Jensen-Shannon Laban Qualities {qualitie} Human - Network Output: {a}")
-            b = kstest(df2[qualitie].to_numpy(),df4[qualitie].to_numpy())
+            b = kstest(df2[qualitie].to_numpy(),df4[qualitie].to_numpy(), alternative='greater')
             print(f"Jensen-Shannon Laban Qualities {qualitie} Robot - Network Output: {b}")
             plt.show()
 

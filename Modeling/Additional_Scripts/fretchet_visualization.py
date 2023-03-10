@@ -66,6 +66,8 @@ epoch_num = np.linspace(0,100,100)
 print(np.shape(fid_robot_history))
 print("Fretchet Distance Last Epoch Robot Data: ",fid_robot_history[:,-1,:].mean(axis=0))
 print("Fretchet Distance Last Epoch Human Data: ",fid_human_history[:,-1,:].mean(axis=0))
+print("Fretchet Distance Last Epoch Robot Data: ",fid_robot_history[:,-1,:].mean())
+print("Fretchet Distance Last Epoch Human Data: ",fid_human_history[:,-1,:].mean())
 # for feature in range(np.shape(fid_human_history)[2]):
 #     fig,axis = plt.subplots(2,5)
 #     for n, ax in enumerate(axis.flatten()):

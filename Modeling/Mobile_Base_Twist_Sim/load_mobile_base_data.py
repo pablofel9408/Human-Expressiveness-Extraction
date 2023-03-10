@@ -11,14 +11,18 @@ from sklearn.preprocessing import MinMaxScaler
 import matplotlib.pyplot as plt 
 
 import torch
-from .utilities_mobile import filter_signal_2,find,has_numbers, filter_signal
+from .utilities_mobile import filter_signal_2,find,has_numbers, filter_signal, close_script
 from .mobile_base_constants import *
 
 class ProcessTrajectory():
-    def __init__(self, constants, model,scalers_path) -> None:
+    def __init__(self, constants, model,scalers_path, emotion_tag="TRE",participant_tag="NABA",lambda_val=1) -> None:
         self.dataset_constants_human = constants[0]
         self.dataset_constants_robot = constants[1]
         self.model_constants = constants[2]
+
+        self.emotion_tag = emotion_tag
+        self.participant_tag = participant_tag
+        self.lambda_val = lambda_val
 
         self.model = model
 
@@ -74,16 +78,36 @@ class ProcessTrajectory():
     def generate_human_train_samples(self, trajectory, tag="train"):
         human_dataset_unscaled = self.unscaled_data_hum(self.human_dataset)
 
-        random_human_indices = [random.randint(0,np.shape(self.human_dataset[tag][0])[0]-1) for _ in range(np.shape(trajectory)[0])]
-        same_human_indices = [random.randint(0,np.shape(self.human_dataset[tag][0])[0]-1)]*np.shape(trajectory)[0]
+        data_neutral_style = np.asarray([self.neutral_style[tag][act] for act in self.human_dataset_tags[tag]["act"].values()])
+        names = set(self.human_dataset_tags[tag]["emo"].values())
+        names_act = set(self.human_dataset_tags[tag]["act"].values())
+        print(set(self.human_dataset_tags[tag]["act"].values()))
+        print(names)
+        # use a list comprehension, iterating through keys and checking the values match each n
+        d = {}
+        d_act = {}
+        for n in names:
+            d[n] = [k for k in self.human_dataset_tags[tag]["emo"].keys() if self.human_dataset_tags[tag]["emo"][k] == n]
+
+        for n in names_act:    
+            d_act[n] = [k for k in self.human_dataset_tags[tag]["act"].keys() if self.human_dataset_tags[tag]["act"][k] == n]
+        
+        idx_list = list(set(d[self.emotion_tag])&set(d_act[self.participant_tag]))
+        
+        # random_human_indices = [random.randint(0,np.shape(self.human_dataset[tag][0])[0]-1) for _ in range(np.shape(trajectory)[0])]
+        # same_human_indices = [random.randint(0,np.shape(self.human_dataset[tag][0])[0]-1)]*np.shape(trajectory)[0]
         # same_human_indices = [73]*np.shape(trajectory)[0]
+        random_human_indices = np.random.choice(idx_list,np.shape(trajectory)[0]) 
+        same_human_indices = [np.random.choice(idx_list,1)[0]]*np.shape(trajectory)[0]
         print(same_human_indices)
+        print("random:",random_human_indices)
         
         human_samples_random = self.human_dataset[tag][0][random_human_indices]
         human_samples_same = self.human_dataset[tag][0][same_human_indices]
 
         human_samples_random_unscaled = human_dataset_unscaled[random_human_indices]
         human_samples_same_unscaled = human_dataset_unscaled[same_human_indices]
+
 
         if self.model_constants["neutral_style"]:
             data_neutral_style = np.asarray([self.neutral_style[tag][act] for act in self.human_dataset_tags[tag]["act"].values()])
@@ -317,8 +341,10 @@ class ProcessTrajectory():
         human_samples_same_unscaled = self.interpolate_samples(human_samples_same_unscaled, sample_num=np.shape(trajectory_orign)[0])
 
         if save:
-            random_trajs_paths = {0:trajectory_network_random_filepath_circle,1:trajectory_network_random_filepath_s_shape}
-            same_trajs_paths = {0:trajectory_network_same_filepath_circle,1:trajectory_network_same_filepath_s_shape}
+            # random_trajs_paths = {0:trajectory_network_random_filepath_circle,1:trajectory_network_random_filepath_s_shape}
+            # same_trajs_paths = {0:trajectory_network_same_filepath_circle,1:trajectory_network_same_filepath_s_shape}
+            random_trajs_paths = {0:trajectory_network_same_filepath_circle_emo+"_"+str(self.lambda_val)+"_"+self.participant_tag+"_"+self.emotion_tag+".npy",1:trajectory_network_random_filepath_s_shape_emo+"_"+str(self.lambda_val)+"_"+self.participant_tag+"_"+self.emotion_tag+".npy"}
+            same_trajs_paths = {0:trajectory_network_random_filepath_circle_emo+"_"+str(self.lambda_val)+"_"+self.participant_tag+"_"+self.emotion_tag+".npy",1:trajectory_network_same_filepath_s_shape_emo+"_"+str(self.lambda_val)+"_"+self.participant_tag+"_"+self.emotion_tag+".npy"}
             self.save_array(random_trajs_paths[key],network_output_random_unscaled)
             self.save_array(same_trajs_paths[key],network_output_same_unscaled)
 

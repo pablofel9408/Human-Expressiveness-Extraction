@@ -16,7 +16,7 @@ from Robot_Feature_Extraction.Preprocessing.process_human_data import Preprocess
 
 import utilities
 
-def load_files_preproc_dataset():
+def load_files_preproc_dataset(lambda_val=None):
     seed = 10
     # torch.use_deterministic_algorithms(True)
     # torch.backends.cudnn.deterministic = True
@@ -81,6 +81,8 @@ def load_files_preproc_dataset():
                 print(np.shape(aux_dataset_laban_qual))
             dataset = (dataset_rob,aux_general_dataset,dataset_tags_hum)
     
+    if lambda_val is not None:
+        model_constants["model_config"]["generator"]["twist_generation"]["lambda_gain"] = lambda_val
     
     modeling_proc_obj = ModelingGAN(model_constants)
     modeling_proc_obj.set_input_data(dataset, expressive=dataset_constants_human["expressive_data"])
@@ -112,19 +114,27 @@ def main():
     if len(sys.argv) > 1:
         elem = int(sys.argv[1])
 
+    # ["EMLA","NABA","PAIB","SALE"]
+    # ["COE","JOE","NEE","TRE"]
     trajectories_paths = ["C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Robot\\trajectory_file_circle.csv",
                             "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Robot\\trajectory_file_s_shape_short.csv"]
     human_data_save_path  = "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Human_Data"
-    dataset, model, dataset_constants_human, dataset_constants_robot, model_constants = load_files_preproc_dataset()
-    mobile_data_obj = ProcessTrajectory([dataset_constants_human, dataset_constants_robot, model_constants],
-                                                        model,dataset_constants_robot["scalers_path"])
-    mobile_data_obj.load_data(dataset)
+    for actor in ["EMLA","NABA","PAIB","SALE"]:
+        for emotion in ["COE","JOE","TRE"]:
+            for lambda_val in [1,100]:
+                if actor=="PAIB" and emotion=="JOE" and lambda_val==100:
+                    continue
+                dataset, model, dataset_constants_human, dataset_constants_robot, model_constants = load_files_preproc_dataset(lambda_val=lambda_val)
+                mobile_data_obj = ProcessTrajectory([dataset_constants_human, dataset_constants_robot, model_constants],
+                                                                    model,dataset_constants_robot["scalers_path"],
+                                                                    emotion_tag=emotion, participant_tag=actor,lambda_val=lambda_val)
+                mobile_data_obj.load_data(dataset)
 
-    filter_values = [(0.2,60),(0.8,60)]
-    random_human_indices, same_human_indices = mobile_data_obj.start_generation(trajectories_paths[elem],elem,save=True, 
-                                                                                cutoff_freq=filter_values[elem][0], fs=filter_values[elem][1])
-    save_dataset_tags(dataset[2]["train"], same_human_indices, elem, tag="same", dirpath=human_data_save_path)
-    save_dataset_tags(dataset[2]["train"], random_human_indices, elem, tag="random", dirpath=human_data_save_path)
+                filter_values = [(0.2,60),(0.8,60)]
+                random_human_indices, same_human_indices = mobile_data_obj.start_generation(trajectories_paths[elem],elem,save=True, 
+                                                                                            cutoff_freq=filter_values[elem][0], fs=filter_values[elem][1])
+                save_dataset_tags(dataset[2]["train"], same_human_indices, elem, tag="same", dirpath=human_data_save_path)
+                save_dataset_tags(dataset[2]["train"], random_human_indices, elem, tag="random", dirpath=human_data_save_path)
     
 
 if __name__=="__main__":

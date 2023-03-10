@@ -1,16 +1,14 @@
 import os
 import sys
 import pathlib
+from operator import itemgetter
 
 import random
 import numpy as np
 import pandas as pd
 import torch
 
-from Pendulum_Twist_Sim.doublependulum_fsm_class import FSM_Sim
-from Pendulum_Twist_Sim.data_processing import DataProcessing
-from Pendulum_Twist_Sim.pendulum_twsit_sim_data_generation import PendulumDataGeneration
-import Pendulum_Twist_Sim.constanst as cst
+from Translation_Process_Simulation.Simulation_Scripts.START_simulation_multi_robot import Simulation_Methods_Multi
 
 from GAN_Translation.General_Functions.START_gan_proc import ModelingGAN
 from Robot_Feature_Extraction.Preprocessing.preprocess_robot_datasets import PreprocessRobotData
@@ -18,7 +16,7 @@ from Robot_Feature_Extraction.Preprocessing.process_human_data import Preprocess
 
 import utilities
 
-def load_files_preproc_dataset():
+def load_files_preproc_dataset(lambda_val=None):
     seed = 10
     # torch.use_deterministic_algorithms(True)
     # torch.backends.cudnn.deterministic = True
@@ -38,6 +36,7 @@ def load_files_preproc_dataset():
     filepath_model_cst = os.path.join(dir_path, "model_system_config.json")
     filepath_sim_cst = os.path.join(dir_path_simulation, "simulation_config.json")
 
+    simulation_constants = utilities.load_raw_constants(filepath_sim_cst)
     dataset_constants_robot = utilities.load_raw_constants(filepath_dataset_rob_cst)
     dataset_constants_human = utilities.load_raw_constants(filepath_dataset_hum_cst)
     vae_constants_human = utilities.load_raw_constants(filepath_vae_hum_cst)
@@ -83,6 +82,8 @@ def load_files_preproc_dataset():
                 print(np.shape(aux_dataset_laban_qual))
             dataset = (dataset_rob,aux_general_dataset,dataset_tags_hum)
     
+    if lambda_val is not None:
+        model_constants["model_config"]["generator"]["twist_generation"]["lambda_gain"] = lambda_val
     
     modeling_proc_obj = ModelingGAN(model_constants)
     modeling_proc_obj.set_input_data(dataset, expressive=dataset_constants_human["expressive_data"])
@@ -94,43 +95,43 @@ def load_files_preproc_dataset():
         neutral_data = modeling_proc_obj.return_neutral_data()
         dataset = (dataset_rob,aux_general_dataset,dataset_tags_hum, neutral_data)
 
-    return dataset, model, dataset_constants_human,dataset_constants_robot, model_constants
-    
+    return dataset, model, dataset_constants_human,dataset_constants_robot, model_constants, simulation_constants
 
+def save_dataset_tags(dataset_tags, movement_indices, key, tag="random", dirpath=""):
+
+    trajectory_index = {0:"circle",1:"s_shape"}
+    emotion_tags = [dataset_tags["emo"][x] for x in movement_indices]
+    actor_tags = [dataset_tags["act"][x] for x in movement_indices]
+
+    with open(os.path.join(dirpath,'emotion_tags_'+trajectory_index[key]+"_"+tag+'.txt'), 'w') as f:
+        for line in emotion_tags:
+            f.write(f"{line}\n")
+
+    with open(os.path.join(dirpath,'actor_tags_'+trajectory_index[key]+"_"+tag+'.txt'), 'w') as f:
+        for line in actor_tags:
+            f.write(f"{line}\n")
+    
 def main():
-    sim = "no_sim"
-    laban_check = "no_laban"
-    generate_files = "no_generate"
     if len(sys.argv) > 1:
-        sim = sys.argv[1]
-        laban_check = sys.argv[2]
-        generate_files = sys.argv[3]
-    
-    sim = False if sim=="no_sim" else True
-    laban_check = False if laban_check=="no_laban" else True
-    generate_files = False if generate_files=="no_generate" else True
+        elem = int(sys.argv[1])
 
-    if not sim:
-        if generate_files:
-            dataset, model, dataset_constants_human, dataset_constants_robot, model_constants = load_files_preproc_dataset()
-            pendulum_data_obj = PendulumDataGeneration([dataset_constants_human, dataset_constants_robot, model_constants],
-                                                        model)
-            pendulum_data_obj.load_data(dataset)
-            pendulum_data_obj.start_generation(save=True)
-        else:
-            data_proc_obj = DataProcessing()
-            data_proc_obj.load_files_from_paths([cst.trajectory_human_same_filepath, cst.trajectory_network_same_filepath],
-                                                integrate=True, save_tag="human_same_input_vel")
-            if laban_check:
-                data_proc_obj.start_processing()
-            
-            data_proc_obj.load_files_from_paths([cst.trajectory_human_random_filepath, cst.trajectory_network_random_filepath],
-                                                integrate=True, save_tag="human_random_input_vel")
-            if laban_check:
-                data_proc_obj.start_processing()
-    else:
-        fsm_obj = FSM_Sim()
-        fsm_obj.start_simulation()
+    trajectories_paths = ["C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Robot\\trajectory_file_circle.csv",
+                            "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Robot\\trajectory_file_s_shape.csv"]
+    human_data_save_path  = "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Mobile_Base_Twist_Sim\\Data\\Human_Data"
+    
+    for actor in ["EMLA","NABA","PAIB","SALE"]:
+        for emotion in ["COE","JOE","TRE"]:
+            for lambda_val in [1,100]:
+                if actor=="PAIB" and emotion=="JOE" and lambda_val==100:
+                    continue
+                dataset, model, dataset_constants_human, dataset_constants_robot,\
+                    model_constants, simulation_constants = load_files_preproc_dataset(lambda_val=lambda_val)
+                simulation_obj = Simulation_Methods_Multi(simulation_constants, model, dataset_constants_robot["scalers_path"],
+                                                            emotion_tag=emotion, participant_tag=actor,lambda_val=lambda_val)
+                neutral_data = dataset[3] if model_constants["neutral_style"] else None
+                simulation_obj.set_input_data(dataset,neutral_data=neutral_data, neutral=model_constants["neutral_style"])
+                simulation_obj.start_simulation(neutral=model_constants["neutral_style"])
+    
 
 if __name__=="__main__":
     main()

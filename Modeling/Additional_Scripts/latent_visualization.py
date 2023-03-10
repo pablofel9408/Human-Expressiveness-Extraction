@@ -166,6 +166,9 @@ class Latent_Viz():
     def visualization(self, df_subset):
         
         df_subset = df_subset[df_subset["emo"]!="NEE"]
+        df_subset["emo"] = np.where(df_subset["emo"]=="TRE","sad",df_subset["emo"])
+        df_subset["emo"] = np.where(df_subset["emo"]=="JOE","happy",df_subset["emo"])
+        df_subset["emo"] = np.where(df_subset["emo"]=="COE","angry",df_subset["emo"])
         pca_50 = PCA(n_components=2)
         tsne_results = pca_50.fit_transform(df_subset[[i for i in range(0,len(df_subset.columns)-2)]])
         # tsne = TSNE(n_components=2, verbose=1, perplexity=12, n_iter=1000,
@@ -181,7 +184,6 @@ class Latent_Viz():
                 hue=df_subset['emo'],
                 data=df_subset,
                 legend="full",
-                alpha=0.3,
                 marker='o',
                 linewidths=2
             )
@@ -230,23 +232,30 @@ class Latent_Viz():
 
         pca_50 = PCA(n_components=50)
         tsne_results = pca_50.fit_transform(df_subset[[i for i in range(0,len(df_subset.columns)-4)]])
-        tsne = TSNE(n_components=2, verbose=1, perplexity=50, n_iter=1000,
-                    init="random")
+        tsne = TSNE(n_components=2, verbose=1, perplexity=15, n_iter=1000)
         tsne_results = tsne.fit_transform(tsne_results)
 
-        df_subset['tsne-2d-one'] = tsne_results[:,0]
-        df_subset['tsne-2d-two'] = tsne_results[:,1]
+        df_subset['tsne-first-component'] = tsne_results[:,0]
+        df_subset['tsne-second-component'] = tsne_results[:,1]
+
+        ax = plt.axes()
+        ax.set_facecolor('white')
+        ax.grid(False)
 
         sns.scatterplot(
-                x="tsne-2d-one", y="tsne-2d-two",
+                x="tsne-first-component", y="tsne-second-component",
                 hue=df_subset['emo'],
                 data=df_subset,
                 legend="full",
-                alpha=0.3,
                 marker='o',
                 linewidths=2
             )
-
+        plt.xlabel('', fontsize=18)
+        plt.ylabel('', fontsize=18)
+        legend = plt.legend(frameon = 1,fontsize=12)
+        frame = legend.get_frame()
+        frame.set_facecolor('white')
+        frame.set_edgecolor('black')
         plt.show()
 
         # pca_50 = PCA(n_components=100)

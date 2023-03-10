@@ -99,7 +99,7 @@ def load_files_preproc_dataset():
     
 def main():
 
-    max_gain = 500
+    max_gain = 1
     steps = 1
 
     dataset,dataset_constants_human,dataset_constants_robot,\
