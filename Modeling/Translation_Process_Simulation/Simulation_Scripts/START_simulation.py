@@ -116,6 +116,10 @@ class Simulation_Methods():
 
     def visualize_translated_traj(self, output_pose1, output_pose2, label=""):
 
+        # dirpath = "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Translation_Dataset_Analysis\\Plots\\Comparisson Experiment\\Experiment 4 - Neutral Style\\Variability Analysis\\Panda_robot\\Trajectories"
+        # np.save(os.path.join(dirpath,"trajectory_700.npy"), output_pose2)
+        # np.save(os.path.join(dirpath,"trajectory_org"".npy"),output_pose1)
+
         fig0 = plt.figure()
         ax0 = plt.axes(projection ='3d')
         ax0.plot3D(output_pose1[0][:,0], output_pose1[0][:,1], 
@@ -349,7 +353,7 @@ class Simulation_Methods():
         
         df = pd.DataFrame(expressive_qualities)
         if save:
-            df.to_csv(os.path.join("C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling", 
+            df.to_csv(os.path.join("C:\\Users\\posorio\\OneDrive - 国立研究開発法人産業技術総合研究所\\Documents\\Expressive movement\\Modeling", 
                                         "laban_qualities_" + tag + ".csv"))
         
         return df
@@ -407,6 +411,7 @@ class Simulation_Methods():
         
         rmse = np.sqrt(((gen_trajectories - robot_traj_sample)**2).mean(axis=1)).mean(axis=(0,1))
         rmse_outputs = np.sqrt(((gen_trajectories - gen_trajectories_exm)**2).mean(axis=1)).mean(axis=0)
+        print(np.argmax(np.sqrt(((gen_trajectories - gen_trajectories_exm)**2).mean(axis=1)).mean(axis=1)))
         print("RMSE Network Output Dataset :", rmse_outputs)
 
         # print("---Stats")
@@ -428,17 +433,18 @@ class Simulation_Methods():
             print("check generated")
             df = pd.DataFrame(expressive_qualities)
             print(df.head())
-            df.to_csv(os.path.join("C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling", 
+            df.to_csv(os.path.join("C:\\Users\\posorio\\OneDrive - 国立研究開発法人産業技術総合研究所\\Documents\\Expressive movement\\Modeling", 
                                         "generated_single_sample_"+tag+"_seed_"+str(random_value)+".csv"))
         # utilities.close_script()
-        return np.mean(cosine_similarity_values,axis=0), (rmse,rmse_outputs), pd.DataFrame(expressive_qualities)
+        # return np.mean(cosine_similarity_values,axis=0), (rmse,rmse_outputs), pd.DataFrame(expressive_qualities)
 
     def generate_poses(self, neutral=False):
         # random.seed(100)
         # random.randint(0,self.robot_data.size()[0])
         robot_traj_sample = self.robot_data[772].unsqueeze(0)
 
-        for k in [0,0,50,50,100,100, 700, 700]:
+        #[0,0,50,50,100,100, 700, 700]
+        for k in [0,0]:
 
             if neutral:
                 self.human_data = torch.tensor(self.human_data)
@@ -527,7 +533,7 @@ class Simulation_Methods():
         print("check human generated")
         df = pd.DataFrame(expressive_qualities)
         print(df)
-        df.to_csv(os.path.join("C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling", "expressive_qualities_sim_result.csv"))
+        df.to_csv(os.path.join("C:\\Users\\posorio\\OneDrive - 国立研究開発法人産業技術総合研究所\\Documents\\Expressive movement\\Modeling", "expressive_qualities_sim_result.csv"))
         # utilities.close_script()
     
     def derivate_tensor(self,input_tensor, dx=0.016):

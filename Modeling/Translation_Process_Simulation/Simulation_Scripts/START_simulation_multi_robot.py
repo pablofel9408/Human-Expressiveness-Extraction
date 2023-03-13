@@ -103,7 +103,7 @@ class Simulation_Methods_Multi():
         error = traj_plan_poses_gan_dict["error"]
 
         save_file_tag = self.participant_tag+"_"+self.emotion_tag+"_"+str(self.lambda_val)+"_seed_"+dataset_idx+".npy"
-        filepath = "C:\\Users\\posorio\\Documents\\Expressive movement\\Modeling\\Translation_Process_Simulation\\Data"
+        filepath = "C:\\Users\\posorio\\OneDrive - 国立研究開発法人産業技術総合研究所\\Documents\\Expressive movement\\Modeling\\Translation_Process_Simulation\\Data"
         np.save(os.path.join(filepath,"robot_motion_twist_"+save_file_tag),output_vel_real)
         np.save(os.path.join(filepath,"robot_motion_joint_vel_"+save_file_tag),output_qd_real)
         np.save(os.path.join(filepath,"robot_motion_joint_"+save_file_tag),output_q_real)
